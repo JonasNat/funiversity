@@ -6,7 +6,8 @@ import com.example.funiversity.dto.UpdateCourseDto;
 import com.example.funiversity.dto.UpdateCourseNameDto;
 import com.example.funiversity.exceptions.CourseAlreadyExistsException;
 import com.example.funiversity.exceptions.CourseNotFoundException;
-import com.example.funiversity.exceptions.ProfessorAlreadyExistsException;
+import com.example.funiversity.security.SecurityService;
+import com.example.funiversity.security.domain.Feature;
 import com.example.funiversity.services.CourseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,47 +20,52 @@ import java.util.List;
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
-    private final CourseService service;
+    private final CourseService courseService;
+    private final SecurityService securityService;
 
-    public CourseController(CourseService service) {
-        this.service = service;
+    public CourseController(CourseService courseService, SecurityService securityService) {
+        this.courseService = courseService;
+        this.securityService = securityService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<CourseDto> findAllCourses() {
-        return service.findAllCourses();
+    public List<CourseDto> findAllCourses(@RequestHeader String authorization) {
+        securityService.validateAuthorization(authorization, Feature.READ);
+        return courseService.findAllCourses();
     }
 
     @GetMapping(params = "studyPoints", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CourseDto> findAllCoursesByStudyPoints(@RequestParam(required = false) int studyPoints) {
-        return service.findAllByStudyPoints(studyPoints);
+        return courseService.findAllByStudyPoints(studyPoints);
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CourseDto findCourseById(@PathVariable String id) {
-        return service.findCourseById(id);
+        return courseService.findCourseById(id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public CourseDto createCourse(@RequestBody CreateCourseDto courseToCreate) {
-        return service.createCourse(courseToCreate);
+    public CourseDto createCourse(@RequestBody CreateCourseDto courseToCreate, @RequestHeader String authorization) {
+        securityService.validateAuthorization(authorization, Feature.CREATE);
+        return courseService.createCourse(courseToCreate);
     }
 
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public CourseDto updateCourse(@PathVariable String id, @RequestBody UpdateCourseDto courseToUpdate) {
-        return service.updateCourse(id, courseToUpdate);
+        return courseService.updateCourse(id, courseToUpdate);
     }
 
+    //TO IMPROVE IMPLEMENTATION OF PATCH
     @PatchMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
         public CourseDto updateCourseName(@PathVariable String id, @RequestBody UpdateCourseNameDto courseToUpdate) {
-            return service.updateCourseName(id, courseToUpdate);
+            return courseService.updateCourseName(id, courseToUpdate);
     }
 
 
     @DeleteMapping("{id}")
     public void deleteCourse(@PathVariable String id) {
-        service.deleteCourse(id);
+        courseService.deleteCourse(id);
     }
 
     @ExceptionHandler(CourseNotFoundException.class)
