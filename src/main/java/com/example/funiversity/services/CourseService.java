@@ -4,6 +4,7 @@ import com.example.funiversity.domain.Course;
 import com.example.funiversity.dto.CourseDto;
 import com.example.funiversity.dto.CreateCourseDto;
 import com.example.funiversity.dto.UpdateCourseDto;
+import com.example.funiversity.dto.UpdateCourseNameDto;
 import com.example.funiversity.exceptions.CourseAlreadyExistsException;
 import com.example.funiversity.exceptions.CourseNotFoundException;
 import com.example.funiversity.exceptions.ProfessorNotFoundException;
@@ -55,6 +56,12 @@ public class CourseService {
         course.setName(courseToUpdate.getName());
         course.setStudyPoints(courseToUpdate.getStudyPoints());
         course.setProfessorId(courseToUpdate.getProfessorId());
+        return mapper.toDto(course);
+    }
+
+    public CourseDto updateCourseName(String id, UpdateCourseNameDto courseToUpdate) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException("Couldn't find course with id: " + id));
+        course.setName(courseToUpdate.getName());
         return mapper.toDto(course);
     }
 

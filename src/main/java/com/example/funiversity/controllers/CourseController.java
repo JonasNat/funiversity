@@ -3,6 +3,7 @@ package com.example.funiversity.controllers;
 import com.example.funiversity.dto.CourseDto;
 import com.example.funiversity.dto.CreateCourseDto;
 import com.example.funiversity.dto.UpdateCourseDto;
+import com.example.funiversity.dto.UpdateCourseNameDto;
 import com.example.funiversity.exceptions.CourseAlreadyExistsException;
 import com.example.funiversity.exceptions.CourseNotFoundException;
 import com.example.funiversity.exceptions.ProfessorAlreadyExistsException;
@@ -49,6 +50,12 @@ public class CourseController {
     public CourseDto updateCourse(@PathVariable String id, @RequestBody UpdateCourseDto courseToUpdate) {
         return service.updateCourse(id, courseToUpdate);
     }
+
+    @PatchMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+        public CourseDto updateCourseName(@PathVariable String id, @RequestBody UpdateCourseNameDto courseToUpdate) {
+            return service.updateCourseName(id, courseToUpdate);
+    }
+
 
     @DeleteMapping("{id}")
     public void deleteCourse(@PathVariable String id) {
